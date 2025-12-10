@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
     if (accessToken) {
         const verifiedToken: JwtPayload | string = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET as string)
 
-        if (typeof verifiedToken === "string") { // string return when token return error            
+        if (typeof verifiedToken === "string") { 
             deleteCookie("accessToken")
             deleteCookie("refreshToken")
             return NextResponse.redirect(new URL('/login', request.url));

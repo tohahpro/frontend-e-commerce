@@ -60,7 +60,6 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         // step-3
         const setCookieHeaders = res.headers.getSetCookie();
-console.log(result);
         // step-4
         if (setCookieHeaders && setCookieHeaders.length > 0) {
             // step-4.1
@@ -97,7 +96,7 @@ console.log(result);
         await setCookie("accessToken", accessTokenObject.accessToken, {
             secure: true,
             httpOnly: true,
-            maxAge: parseInt(accessTokenObject['Max-Age']) || 1000 * 60 * 60,
+            maxAge: parseInt(accessTokenObject['Max-Age']) || 1000 * 60 * 60 * 24,
             path: accessTokenObject.Path || "/",
             sameSite: refreshTokenObject['SameSite']
         })
@@ -131,10 +130,6 @@ console.log(result);
             } else {
                 redirect("/reset-password");
             }
-        }
-
-        if (result.data.needPasswordChange) {
-            redirect(`/reset-password`);
         }
 
         if (redirectTo) {
