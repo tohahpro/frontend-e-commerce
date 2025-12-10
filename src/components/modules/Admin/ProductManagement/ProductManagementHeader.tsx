@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useTransition } from "react";
-import ProductFormDialog from "./ProductFormDialog";
 import { useRouter } from "next/navigation";
 import { ICategory } from "@/types/category.interface";
 import ManagementPageHeader from "@/components/shared/ManagementPageHeader";
 import { Plus } from "lucide-react";
+import ProductTestFormDialog from "./ProductTestFormDialog";
 
 
 interface ProductManagementHeaderProps {
@@ -41,7 +41,7 @@ const ProductManagementHeader = ({
 
     return (
         <div>
-            <ProductFormDialog
+            <ProductTestFormDialog
                 key={dialogKey}
                 open={isDialogOpen}
                 onClose={handleCloseDialog}

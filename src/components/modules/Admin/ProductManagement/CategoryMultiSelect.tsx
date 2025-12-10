@@ -76,13 +76,13 @@ const CategoryMultiSelect = ({
       )}
 
       {/* Add Category Selector */}
-      <div className="flex gap-2">
+      <div className="grid grid-cols-12 md:flex gap-1">
         <Select
           value={currentCategoryId}
           onValueChange={onCurrentCategoryChange}
         >
-          <SelectTrigger className="flex-1">
-            <SelectValue placeholder="Select a Category to add" />
+          <SelectTrigger className="col-span-9 gap-1 md:w-full md:flex-1">
+            <SelectValue placeholder="Select a Category Add" />
           </SelectTrigger>
           <SelectContent>
             {availableCategories?.length > 0 ? (
@@ -102,6 +102,7 @@ const CategoryMultiSelect = ({
         </Select>
         <Button
           type="button"
+          className="col-span-3"
           onClick={onAddCategory}
           disabled={!currentCategoryId}
           variant="outline"
