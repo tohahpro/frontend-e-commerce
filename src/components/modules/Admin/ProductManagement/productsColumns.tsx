@@ -72,7 +72,7 @@ export const productsColumns: Column<IProduct>[] = [
               key={cat.categoryId}
               className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
             >
-              {cat.category?.title || cat.categoryId}
+              {cat.category?.name || cat.categoryId}
             </span>
           ))}
         </div>

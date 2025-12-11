@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { FileMetadata } from "@/hooks/use-file-upload";
 import { Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FieldValues,
   SubmitHandler,
@@ -73,7 +73,7 @@ const ProductTestFormDialog = ({
       color: "",
       intro: "",
       outro: "",
-      arrival: "",
+      newArrival: "",
       bulletPoints: [{ value: "" }],
       variantOptions: [{ size: "", stock: "" }],
     },
@@ -109,7 +109,7 @@ const ProductTestFormDialog = ({
       sku: data.sku,
       barcode: data.barcode,
       color: data.color,
-      arrival: data.arrival,
+      newArrival: Boolean(data.newArrival),
 
       description: {
         intro: data.intro,
@@ -148,6 +148,37 @@ const ProductTestFormDialog = ({
       toast.error("Failed");
     }
   };
+
+
+  useEffect(() => {
+  if (product) {
+    form.reset({
+      title: product.title,
+      slug: product.slug,
+      price: product.price,
+      sku: product.sku,
+      barcode: product.barcode,
+      color: product.color,
+
+      newArrival: product.newArrival ? "true" : "false",
+
+      intro: product.description?.intro || "",
+      outro: product.description?.outro || "",
+
+      bulletPoints:
+        product.description?.bulletPoints?.map((item: any) => ({
+          value: item,
+        })) || [{ value: "" }],
+
+      variantOptions:
+        product.variantOption?.map((v: any) => ({
+          size: v.size,
+          stock: v.stock.toString(),
+        })) || [{ size: "", stock: "" }],
+    });
+
+  }
+}, [product, form]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -253,7 +284,7 @@ const ProductTestFormDialog = ({
 
                 <FormField
                   control={form.control}
-                  name="arrival"
+                  name="newArrival"
                   render={({ field }) => (
                     <FormItem className="flex-1">
                       <FormLabel>New Arrival</FormLabel>
