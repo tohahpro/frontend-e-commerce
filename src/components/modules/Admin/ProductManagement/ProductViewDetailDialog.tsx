@@ -18,7 +18,6 @@ import {
   Layers,
   DollarSign,
   Barcode,
-  Palette,
   Boxes,
   Sparkles,
 } from "lucide-react";
@@ -46,7 +45,7 @@ const ProductViewDetailDialog = ({
 
     <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-6 space-y-6">
       {/* ================= HEADER (Image + basic info) ================= */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 p-4 md:p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 p-4 md:p-6 bg-gradient-to from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg">
         
         {/* IMAGES */}
         <div className="w-full lg:w-1/3">
@@ -70,7 +69,7 @@ const ProductViewDetailDialog = ({
 
         {/* PRODUCT MAIN INFO */}
         <div className="flex-1">
-          <h2 className="text-xl md:text-3xl font-bold mb-2 break-words">
+          <h2 className="text-xl md:text-3xl font-bold mb-2 break-normal">
             {product.title}
           </h2>
           <p className="text-xs md:text-sm text-muted-foreground mb-3 break-all">

@@ -109,7 +109,7 @@ const ProductTestFormDialog = ({
       sku: data.sku,
       barcode: data.barcode,
       color: data.color,
-      newArrival: Boolean(data.newArrival),
+      newArrival: data.newArrival === "true",
 
       description: {
         intro: data.intro,
@@ -124,8 +124,6 @@ const ProductTestFormDialog = ({
 
       categories: categorySelection.selectedCategoryIds,
     };
-
-    console.log("FINAL productData", productData);
 
     formData.append("data", JSON.stringify(productData));
     images.forEach((image) => formData.append("files", image as File));
