@@ -1,4 +1,5 @@
 import ProductManagementHeader from "@/components/modules/Admin/ProductManagement/ProductManagementHeader";
+import ProductFilters from "@/components/modules/Admin/ProductManagement/ProductsFilters";
 import ProductsTable from "@/components/modules/Admin/ProductManagement/ProductTable";
 import TablePagination from "@/components/shared/TablePagination";
 import { getAllCategories } from "@/services/admin/categoryManagement";
@@ -16,6 +17,7 @@ const ProductsManagementPage = async () => {
     <div>
       <ProductManagementHeader categories={categories.data} />
 
+    <ProductFilters categories={categories?.data || []}/>
       <Suspense>
         <ProductsTable
           products={productsResults.data}
