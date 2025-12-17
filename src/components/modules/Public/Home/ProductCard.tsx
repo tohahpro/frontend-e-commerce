@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import ProductQuickViewModal from "./ProductQuickViewModal";
 
 export interface Product {
   id: string;
@@ -21,7 +23,8 @@ export interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  
+  const [open, setOpen] = useState(false);
+
   const image = product.images?.[0] ?? "/placeholder.png";
 
   return (
@@ -49,12 +52,27 @@ export default function ProductCard({ product }: { product: Product }) {
         <span className="text-lg font-bold">৳ {product.price}</span>
 
         <div className="flex gap-2">
-          <Button className="flex-1 bg-black text-white">Order</Button>
-          <Button variant="outline" className="flex-1">
+          <Button
+            onClick={() => setOpen(true)}
+            className="flex-1 bg-black text-white"
+          >
+            Order
+          </Button>
+          <Button
+            onClick={() => setOpen(true)}
+            variant="outline"
+            className="flex-1"
+          >
             Add To Cart
           </Button>
         </div>
+        
       </CardContent>
+      <ProductQuickViewModal
+          open={open}
+          setOpen={setOpen}
+          product={product}
+        />
     </Card>
   );
 }
