@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ProductQuickViewModal from "./ProductQuickViewModal";
+import Link from "next/link";
 
 export interface Product {
   id: string;
   title: string;
+  slug: string;
   price: number;
   images: string[];
   productCategory: {
@@ -28,7 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const image = product.images?.[0] ?? "/placeholder.png";
 
   return (
-    <Card className="rounded-xl overflow-hidden border shadow-sm">
+    <Card className="rounded-xl overflow-hidden py-0 border shadow-sm">
       <div className="relative">
         {/* NEW ARRIVAL BADGE */}
         {product.newArrival && (
@@ -46,9 +48,12 @@ export default function ProductCard({ product }: { product: Product }) {
         />
       </div>
 
-      <CardContent className="p-4 space-y-3">
-        <h3 className="text-sm font-semibold">{product.title}</h3>
-
+      <CardContent className="p-4 space-y-3">        
+        <Link href={`/product/${product.slug}`}>
+          <h3 className="mt-3 font-semibold cursor-pointer">
+            {product.title}
+          </h3>
+        </Link>
         <span className="text-lg font-bold">৳ {product.price}</span>
 
         <div className="flex gap-2">
@@ -66,13 +71,8 @@ export default function ProductCard({ product }: { product: Product }) {
             Add To Cart
           </Button>
         </div>
-        
       </CardContent>
-      <ProductQuickViewModal
-          open={open}
-          setOpen={setOpen}
-          product={product}
-        />
+      <ProductQuickViewModal open={open} setOpen={setOpen} product={product} />
     </Card>
   );
 }

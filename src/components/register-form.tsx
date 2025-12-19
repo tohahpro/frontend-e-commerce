@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { registerPatient } from "@/services/auth/registerPatient";
+// import { registerPatient } from "@/services/auth/registerPatient";
 
 const RegisterForm = () => {
 
