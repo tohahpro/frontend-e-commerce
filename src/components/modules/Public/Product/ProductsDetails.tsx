@@ -12,6 +12,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ProductDetails() {
   const params = useParams();
@@ -25,34 +26,29 @@ export default function ProductDetails() {
   const [showZoom, setShowZoom] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  // image container ref & size
   const imageRef = useRef<HTMLDivElement>(null);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
 
   const ZOOM = 2.5;
-  const LENS = 150; // magnifier size
+  const LENS = 150;
 
   // fetch product
   useEffect(() => {
     if (!params?.slug) return;
 
     getSingleProduct(params.slug as string).then((res) => {
-      const data = res.data;
-      setProduct(data);
-      setSelectedVariant(data.variantOption[0]);
+      setProduct(res.data);
+      setSelectedVariant(res.data.variantOption[0]);
     });
   }, [params?.slug]);
 
   // carousel sync
   useEffect(() => {
     if (!api) return;
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
+    api.on("select", () => setCurrent(api.selectedScrollSnap()));
   }, [api]);
 
-  // get image container size
+  // image size for zoom
   useEffect(() => {
     if (imageRef.current) {
       const rect = imageRef.current.getBoundingClientRect();
@@ -64,36 +60,38 @@ export default function ProductDetails() {
 
   const activeImage = product.images[current];
 
+  const isFirst = current === 0;
+  const isLast = current === product.images.length - 1;
+
   return (
     <div>
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* LEFT */}
-        <div className="flex">
+      <div className="flex gap-6">
+        {/* LEFT SIDE */}
+        <div className="flex gap-2">
           {/* Thumbnails */}
           <div className="flex flex-col gap-2">
             {product.images.map((img: string, i: number) => (
               <button
                 key={img}
                 onClick={() => api?.scrollTo(i)}
-                className={`border rounded-lg ${
-                  current === i ? "border-black" : "border-gray-200"
-                }`}
+                className={`border cursor-pointer rounded-md p-1 ${current === i ? "border-black" : "border-gray-200"
+                  }`}
               >
                 <Image
                   src={img}
                   alt="thumb"
-                  width={80}
-                  height={80}
-                  className="rounded-lg object-cover"
+                  width={70}
+                  height={70}
+                  className="object-contain"
                 />
               </button>
             ))}
           </div>
 
-          {/* Main image + zoom */}
+          {/* Main image + carousel */}
           <div
             ref={imageRef}
-            className="relative flex-1 overflow-hidden rounded-lg"
+            className="relative cursor-pointer w-[500px] overflow-hidden rounded-lg group"
             onMouseEnter={() => setShowZoom(true)}
             onMouseLeave={() => setShowZoom(false)}
             onMouseMove={(e) => {
@@ -104,38 +102,69 @@ export default function ProductDetails() {
               });
             }}
           >
-            <Carousel className="cursor-pointer" setApi={setApi}>
+            <Carousel setApi={setApi}>
               <CarouselContent>
                 {product.images.map((img: string) => (
                   <CarouselItem
                     key={img}
-                    className="flex justify-center px-0"
+                    className="flex justify-center"
                   >
                     <Image
                       src={img}
                       alt="product"
                       width={500}
                       height={650}
-                      className="rounded-lg object-cover"
+                      className="object-contain"
                     />
                   </CarouselItem>
                 ))}
               </CarouselContent>
             </Carousel>
 
-            {/* 🔍 Magnifier */}
-            {showZoom && imgSize.w > 0 && (
+            {/* LEFT button */}
+            {
+              !isFirst && (
+                <button
+                  onClick={() => api?.scrollPrev()}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20
+                bg-white/80 hover:bg-white
+                rounded-full p-2 shadow
+                opacity-0 group-hover:opacity-100
+                transition-all cursor-pointer"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+              )
+            }
+
+            {/* RIGHT button */}
+            {
+              !isLast && (
+                <button
+                  onClick={() => api?.scrollNext()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20
+                bg-white/80 hover:bg-white
+                rounded-full p-2 shadow
+                opacity-0 group-hover:opacity-100
+                transition-all cursor-pointer"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              )
+            }
+
+            {/* 🔍 Zoom lens */}
+            {showZoom && (
               <div
-                className="pointer-events-none absolute z-20 rounded-full border bg-no-repeat shadow-lg"
+                className="pointer-events-none absolute z-10 rounded-full border bg-no-repeat shadow-lg"
                 style={{
                   width: LENS,
                   height: LENS,
                   top: position.y - LENS / 2,
                   left: position.x - LENS / 2,
                   backgroundImage: `url(${activeImage})`,
-                  backgroundSize: `${imgSize.w * ZOOM}px ${
-                    imgSize.h * ZOOM
-                  }px`,
+                  backgroundSize: `${imgSize.w * ZOOM}px ${imgSize.h * ZOOM
+                    }px`,
                   backgroundPosition: `
                     -${position.x * ZOOM - LENS / 2}px
                     -${position.y * ZOOM - LENS / 2}px
@@ -146,10 +175,14 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        {/* RIGHT */}
-        <div className="space-y-4">
-          <h1 className="text-2xl font-bold uppercase">{product.title}</h1>
-          <p className="text-3xl font-semibold">৳ {product.price}</p>
+        {/* RIGHT SIDE */}
+        <div className="space-y-4 max-w-md">
+          <h1 className="text-2xl font-bold uppercase">
+            {product.title}
+          </h1>
+          <p className="text-3xl font-semibold">
+            ৳ {product.price}
+          </p>
 
           <p className="text-sm text-gray-500">
             {product.description?.intro}
@@ -157,13 +190,15 @@ export default function ProductDetails() {
 
           {/* SIZE */}
           <div>
-            <p className="mb-2">Select Size</p>
+            <p className="mb-2 font-medium">Select Size</p>
             <div className="flex gap-2 flex-wrap">
               {product.variantOption.map((v: any) => (
                 <Button
                   key={v.id}
                   variant={
-                    selectedVariant.id === v.id ? "default" : "outline"
+                    selectedVariant.id === v.id
+                      ? "default"
+                      : "outline"
                   }
                   onClick={() => setSelectedVariant(v)}
                 >
@@ -194,9 +229,9 @@ export default function ProductDetails() {
       </div>
 
       {/* DESCRIPTION */}
-      <div className="pt-6">
-        <h3 className="font-semibold">Description:</h3>
-        <p>{product.description?.intro}</p>
+      <div className="pt-6 max-w-3xl">
+        <h3 className="font-bold">Description:</h3>
+        <p className="font-semibold">{product.description?.intro}</p>
         <ul className="list-disc pl-5 mt-2">
           {product.description?.bulletPoints.map(
             (b: string, i: number) => (
@@ -204,7 +239,7 @@ export default function ProductDetails() {
             )
           )}
         </ul>
-        <p className="mt-2">{product.description?.outro}</p>
+        <p className="mt-2 font-semibold">{product.description?.outro}</p>
       </div>
     </div>
   );
