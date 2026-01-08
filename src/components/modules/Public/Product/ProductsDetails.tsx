@@ -12,6 +12,17 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addToCartCookie } from "@/utils/cartCookie";
 
@@ -27,6 +38,7 @@ export default function ProductDetails() {
   // 🔍 zoom states
   const [showZoom, setShowZoom] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [open, setOpen] = useState(false);
 
   const imageRef = useRef<HTMLDivElement>(null);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
@@ -65,35 +77,31 @@ export default function ProductDetails() {
   const isFirst = current === 0;
   const isLast = current === product.images.length - 1;
 
-
   // cookie 
   const handleAddToCart = () => {
-  addToCartCookie({
-    productId: product.id,
-    title: product.title,
-    price: product.price,
-    image: activeImage,
-    variantId: selectedVariant.id,
-    size: selectedVariant.size,
-    quantity: 1,
-  });
+    addToCartCookie({
+      productId: product.id,
+      title: product.title,
+      image: activeImage,
+      variantId: selectedVariant.id,
+      size: selectedVariant.size,
+      quantity: 1,
+    });
+    setOpen(false);
+  };
 
-  alert("Product added to cart ✅");
-};
+  const handleOrderNow = () => {
+    addToCartCookie({
+      productId: product.id,
+      title: product.title,
+      image: activeImage,
+      variantId: selectedVariant.id,
+      size: selectedVariant.size,
+      quantity: 1,
+    });
 
-const handleOrderNow = () => {
-  addToCartCookie({
-    productId: product.id,
-    title: product.title,
-    price: product.price,
-    image: activeImage,
-    variantId: selectedVariant.id,
-    size: selectedVariant.size,
-    quantity: 1,
-  });
-
-  router.push("/cart");
-};
+    router.push("/cart");
+  };
 
   return (
     <div>
@@ -242,9 +250,39 @@ const handleOrderNow = () => {
 
           {/* ACTION */}
           <div className="flex gap-3 pt-4">
-            <Button variant="secondary" onClick={handleAddToCart}>Add To Cart</Button>
+            <Button variant="secondary" onClick={() => setOpen(true)}>Add To Cart</Button>
             <Button onClick={handleOrderNow}>Order Now</Button>
           </div>
+
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            {/* Modal */}
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Add product to cart?
+                </AlertDialogTitle>
+
+                <AlertDialogDescription>
+                  <span className="font-medium">{product.title}</span> <br />
+                  Size: <b>{selectedVariant.size}</b> <br />
+                  Price: ৳ {product.price}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                <AlertDialogAction
+                  onClick={handleAddToCart}
+                  className="bg-black hover:bg-black/90"
+                >
+                  Confirm
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+
 
           {/* META */}
           <div className="text-sm text-gray-500 pt-4 space-y-1">
