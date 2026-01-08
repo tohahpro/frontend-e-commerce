@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getSingleProduct } from "@/services/public/product";
 import {
   Carousel,
@@ -13,9 +13,11 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { addToCartCookie } from "@/utils/cartCookie";
 
 export default function ProductDetails() {
   const params = useParams();
+  const router = useRouter();
 
   const [product, setProduct] = useState<any>(null);
   const [api, setApi] = useState<CarouselApi | null>(null);
@@ -62,6 +64,36 @@ export default function ProductDetails() {
 
   const isFirst = current === 0;
   const isLast = current === product.images.length - 1;
+
+
+  // cookie 
+  const handleAddToCart = () => {
+  addToCartCookie({
+    productId: product.id,
+    title: product.title,
+    price: product.price,
+    image: activeImage,
+    variantId: selectedVariant.id,
+    size: selectedVariant.size,
+    quantity: 1,
+  });
+
+  alert("Product added to cart ✅");
+};
+
+const handleOrderNow = () => {
+  addToCartCookie({
+    productId: product.id,
+    title: product.title,
+    price: product.price,
+    image: activeImage,
+    variantId: selectedVariant.id,
+    size: selectedVariant.size,
+    quantity: 1,
+  });
+
+  router.push("/cart");
+};
 
   return (
     <div>
@@ -210,8 +242,8 @@ export default function ProductDetails() {
 
           {/* ACTION */}
           <div className="flex gap-3 pt-4">
-            <Button variant="secondary">Add To Cart</Button>
-            <Button>Order Now</Button>
+            <Button variant="secondary" onClick={handleAddToCart}>Add To Cart</Button>
+            <Button onClick={handleOrderNow}>Order Now</Button>
           </div>
 
           {/* META */}
