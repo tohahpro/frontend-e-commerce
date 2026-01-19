@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   Carousel,
@@ -17,7 +17,7 @@ export default function ProductQuickViewModal({ open, setOpen, product }: any) {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
-
+  
   // 🔍 zoom states
   const [showZoom, setShowZoom] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -44,20 +44,61 @@ export default function ProductQuickViewModal({ open, setOpen, product }: any) {
     }
   }, [current, open]);
 
-  if (!product) return null;
+
+    // carousel sync
+  useEffect(() => {
+    if (!api) return;
+    api.on("select", () => setCurrent(api.selectedScrollSnap()));
+  }, [api]);
+
+  // image size for zoom
+  useEffect(() => {
+    if (imageRef.current) {
+      const rect = imageRef.current.getBoundingClientRect();
+      setImgSize({ w: rect.width, h: rect.height });
+    }
+  }, [current]);
+
+  if (!product) return <p>Loading...</p>;
 
   const activeImage = product.images[current];
 
+  const isFirst = current === 0;
+  const isLast = current === product.images.length - 1;
+
+
+  if (!product) return null;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-2 overflow-y-auto">
-        <div className="pt-6 md:px-4 md:p-6">
+      <DialogContent className="lg:min-w-5xl max-h-[90vh] flex flex-col p-0">
+        <div className="lg:flex lg:gap-3 py-6 px-2 md:px-4 md:p-6">
           {/* LEFT SIDE */}
-          <div className="md:flex md:flex-row-reverse gap-2 space-y-4 md:space-y-0">
-            {/* Carousel + Zoom */}
+          <div className="flex gap-2">
+            {/* Thumbnails */}
+            <div className="flex flex-col gap-2">
+              {product.images.map((img: string, i: number) => (
+                <button
+                  key={img}
+                  onClick={() => api?.scrollTo(i)}
+                  className={`border cursor-pointer rounded-md p-1 ${current === i ? "border-black" : "border-gray-200"
+                    }`}
+                >
+                  <Image
+                    src={img}
+                    alt="thumb"
+                    width={70}
+                    height={70}
+                    className="object-contain"
+                  />
+                </button>
+              ))}
+            </div>
+
+            {/* Main image + carousel */}
             <div
               ref={imageRef}
-              className="relative w-full overflow-hidden rounded-lg"
+              className="relative cursor-pointer w-[500px] overflow-hidden rounded-lg group"
               onMouseEnter={() => setShowZoom(true)}
               onMouseLeave={() => setShowZoom(false)}
               onMouseMove={(e) => {
@@ -68,66 +109,76 @@ export default function ProductQuickViewModal({ open, setOpen, product }: any) {
                 });
               }}
             >
-              <Carousel setApi={setApi} className="w-full rounded-lg">
+              <Carousel setApi={setApi}>
                 <CarouselContent>
-                  {product.images.map((item: string) => (
+                  {product.images.map((img: string) => (
                     <CarouselItem
-                      key={item}
-                      className="flex justify-center items-center"
+                      key={img}
+                      className="flex justify-center"
                     >
                       <Image
-                        src={item}
+                        src={img}
                         alt="product"
                         width={500}
                         height={650}
-                        className="rounded-lg max-h-[60vh] object-contain"
+                        className="object-contain"
                       />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
               </Carousel>
 
-              {/* 🔍 Magnifier */}
-              {showZoom && imgSize.w > 0 && (
+              {/* LEFT button */}
+              {
+                !isFirst && (
+                  <button
+                    onClick={() => api?.scrollPrev()}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20
+                          bg-white/80 hover:bg-white
+                          rounded-full p-2 shadow
+                          opacity-0 group-hover:opacity-100
+                          transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                )
+              }
+
+              {/* RIGHT button */}
+              {
+                !isLast && (
+                  <button
+                    onClick={() => api?.scrollNext()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20
+                          bg-white/80 hover:bg-white
+                          rounded-full p-2 shadow
+                          opacity-0 group-hover:opacity-100
+                          transition-all cursor-pointer"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                )
+              }
+
+              {/* 🔍 Zoom lens */}
+              {showZoom && (
                 <div
-                  className="pointer-events-none absolute z-30 rounded-full border bg-no-repeat shadow-lg"
+                  className="pointer-events-none absolute z-10 rounded-full border bg-no-repeat shadow-lg"
                   style={{
                     width: LENS,
                     height: LENS,
                     top: position.y - LENS / 2,
                     left: position.x - LENS / 2,
                     backgroundImage: `url(${activeImage})`,
-                    backgroundSize: `${imgSize.w * ZOOM}px ${
-                      imgSize.h * ZOOM
-                    }px`,
+                    backgroundSize: `${imgSize.w * ZOOM}px ${imgSize.h * ZOOM
+                      }px`,
                     backgroundPosition: `
-                      -${position.x * ZOOM - LENS / 2}px
-                      -${position.y * ZOOM - LENS / 2}px
-                    `,
+                              -${position.x * ZOOM - LENS / 2}px
+                              -${position.y * ZOOM - LENS / 2}px
+                            `,
                   }}
                 />
               )}
-            </div>
-
-            {/* Thumbnails */}
-            <div className="flex md:flex-col gap-1">
-              {product.images.map((item: string, i: number) => (
-                <button
-                  key={item}
-                  onClick={() => api?.scrollTo(i)}
-                  className={`border rounded-lg transition
-                    ${current === i ? "border-black" : "border-gray-200"}
-                  `}
-                >
-                  <Image
-                    src={item}
-                    alt="thumb"
-                    width={100}
-                    height={100}
-                    className="rounded-lg object-cover"
-                  />
-                </button>
-              ))}
             </div>
           </div>
 
